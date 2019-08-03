@@ -1,1 +1,0 @@
-bastion_ssh_public_key=<<ADD_YOUR_OWN>>

@@ -37,3 +37,23 @@ resource "aws_subnet" "operator_flow_private_subnet" {
     Name = "operator_flow_private_subnet"
   }
 }
+
+resource "aws_internet_gateway" "operator_flow_vpc_igw" {
+  vpc_id = aws_vpc.operator_flow_vpc.id
+
+  tags = {
+    Name = "operator_flow_igw"
+  }
+}
+
+data "aws_route_table" "operator_flow_vpc_route_table" {
+  vpc_id = aws_vpc.operator_flow_vpc.id
+}
+
+resource "aws_route" "internet_egress_route" {
+  route_table_id = data.aws_route_table.operator_flow_vpc_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.operator_flow_vpc_igw.id
+  depends_on = [
+    "aws_internet_gateway.operator_flow_vpc_igw"]
+}
