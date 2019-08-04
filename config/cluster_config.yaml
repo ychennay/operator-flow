@@ -9,7 +9,7 @@ metadata:
   region: us-east-1
   version: '1.12'
 # If your region has multiple availability zones, you can specify 3 of them.
-availabilityZones: ["us-east-1a", "us-east-1b"]
+availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1b"]
 
 # NodeGroup holds all configuration attributes that are specific to a nodegroup
 # You can have several node group in your cluster.
