@@ -44,4 +44,4 @@ ${KUBEFLOW_SRC}/scripts/kfctl.sh generate k8s
 ${KUBEFLOW_SRC}/scripts/kfctl.sh apply k8s
 
 # install python aws api
-pip3 install boto3 && pip3 install --upgrade requests
+pip3 install boto3 && pip3 install --upgrade r555satequests

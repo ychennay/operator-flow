@@ -1,46 +1,3 @@
-locals {
-  instance-userdata = <<EOF
-#!/bin/bash
-sudo apt-get update && sudo apt-get install -y apt-transport-https
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update
-sudo apt-get install -y kubectl awscli jq python3-pip
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-sudo mv /tmp/eksctl /usr/local/bin
-curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.13.7/2019-06-11/bin/linux/amd64/aws-iam-authenticator
-openssl sha1 -sha256 aws-iam-authenticator
-chmod +x ./aws-iam-authenticator
-mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$HOME/bin:$PATH
-echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
-
-export KUBEFLOW_SRC=/tmp/kubeflow-aws
-export KUBEFLOW_TAG=v0.5-branch
-
-mkdir -p ${KUBEFLOW_SRC} && cd ${KUBEFLOW_SRC}
-curl https://raw.githubusercontent.com/kubeflow/kubeflow/${KUBEFLOW_TAG}/scripts/download.sh | bash
-export KFAPP=kfapp
-export REGION=us-east-1
-export AWS_CLUSTER_NAME=kubeflow-aws
-
-export KS_VER=0.13.1
-export KS_PKG=ks_${KS_VER}_linux_amd64
-wget -O /tmp/${KS_PKG}.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v${KS_VER}/${KS_PKG}.tar.gz   --no-check-certificate
-tar -xvf /tmp/$KS_PKG.tar.gz -C ${HOME}/bin
-export PATH=$PATH:${HOME}/bin/$KS_PKG
-echo 'export PATH=$PATH:${HOME}/bin/$KS_PKG' > ~/.bash_rc
-
-# initialize and generate templates for platform config
-${KUBEFLOW_SRC}/scripts/kfctl.sh init ${KFAPP} --platform aws \
---awsClusterName ${AWS_CLUSTER_NAME} \
---awsRegion ${REGION}
-
-# apply configurations
-cd ${KFAPP}
-${KUBEFLOW_SRC}/scripts/kfctl.sh generate platform && ${KUBEFLOW_SRC}/scripts/kfctl.sh apply platform
-${KUBEFLOW_SRC}/scripts/kfctl.sh generate k8s && ${KUBEFLOW_SRC}/scripts/kfctl.sh apply k8s
-EOF
-}
 
 resource "aws_instance" "bastion" {
   instance_type               = "t2.medium"
@@ -49,14 +6,17 @@ resource "aws_instance" "bastion" {
   subnet_id                   = data.aws_subnet.operator_flow_public_subnet_id.id
   key_name                    = aws_key_pair.bastion_key.key_name
   iam_instance_profile        = aws_iam_instance_profile.bastion_profile.name
-  user_data_base64            = base64encode(local.instance-userdata)
-
   security_groups = [
   aws_security_group.bastion-security-group.id]
 
   tags = {
     Name = "operator_flow_bastion_host"
   }
+}
+
+resource "aws_eip" "bastion_host_ip" {
+  instance = aws_instance.bastion.id
+  vpc      = true
 }
 
 resource "aws_iam_role" "bastion_iam_role" {
@@ -82,9 +42,56 @@ EOF
   }
 }
 
+resource aws_iam_policy_attachment "eks_policy_attachment" {
+  name       = aws_iam_role.bastion_iam_role.name
+  policy_arn = data.aws_iam_policy.eks_full_policy.arn
+}
+
+resource aws_iam_policy_attachment "cloud_formation_policy_attachment" {
+  name       = aws_iam_role.bastion_iam_role.name
+  policy_arn = data.aws_iam_policy.cloudformation_full_policy.arn
+}
+
+resource aws_iam_policy_attachment "ec2_policy_attachment" {
+  name       = aws_iam_role.bastion_iam_role.name
+  policy_arn = data.aws_iam_policy.ec2_full_policy.arn
+}
+
+resource aws_iam_policy_attachment "iam_policy_attachment" {
+  name       = aws_iam_role.bastion_iam_role.name
+  policy_arn = data.aws_iam_policy.iam_full_policy.arn
+}
+
+resource aws_iam_policy_attachment "eks_cluster_management_policy" {
+  name       = aws_iam_role.bastion_iam_role.name
+  policy_arn = data.aws_iam_policy.eks_cluster_management_policy.arn
+}
+
+
 resource "aws_iam_instance_profile" "bastion_profile" {
   name = "bastion_profile"
   role = aws_iam_role.bastion_iam_role.name
+}
+
+
+data "aws_iam_policy" "ec2_full_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+data "aws_iam_policy" "eks_cluster_management_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+data "aws_iam_policy" "cloudformation_full_policy" {
+  arn = "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+}
+
+data "aws_iam_policy" "iam_full_policy" {
+  arn = "arn:aws:iam::aws:policy/IAMFullAccess"
+}
+
+data "aws_iam_policy" "eks_full_policy" {
+  arn = "arn:aws:iam::892003309670:policy/eks_allow_all_policy"
 }
 
 
