@@ -21,6 +21,7 @@ export KFAPP=kfapp
 export REGION=us-east-1
 export AWS_CLUSTER_NAME=kubeflow-aws
 
+# install ksonnet
 export KS_VER=0.13.1
 export KS_PKG=ks_${KS_VER}_linux_amd64
 wget -O /tmp/${KS_PKG}.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v${KS_VER}/${KS_PKG}.tar.gz --no-check-certificate
@@ -44,4 +45,4 @@ ${KUBEFLOW_SRC}/scripts/kfctl.sh generate k8s
 ${KUBEFLOW_SRC}/scripts/kfctl.sh apply k8s
 
 # install python aws api
-pip3 install boto3 && pip3 install --upgrade r555satequests
+pip3 install boto3 && pip3 install --upgrade requests

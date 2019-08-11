@@ -1,4 +1,3 @@
-
 resource "aws_instance" "bastion" {
   instance_type               = "t2.medium"
   associate_public_ip_address = true
@@ -43,28 +42,68 @@ EOF
 }
 
 resource aws_iam_policy_attachment "eks_policy_attachment" {
-  name       = aws_iam_role.bastion_iam_role.name
+  name = "eks_policy_attachment"
+  roles = [
+  aws_iam_role.bastion_iam_role.name]
   policy_arn = data.aws_iam_policy.eks_full_policy.arn
 }
 
 resource aws_iam_policy_attachment "cloud_formation_policy_attachment" {
-  name       = aws_iam_role.bastion_iam_role.name
+  name = "cloud_formation_policy_attachment"
+  roles = [
+  aws_iam_role.bastion_iam_role.name]
   policy_arn = data.aws_iam_policy.cloudformation_full_policy.arn
 }
 
 resource aws_iam_policy_attachment "ec2_policy_attachment" {
-  name       = aws_iam_role.bastion_iam_role.name
+  name = "ec2_policy_attachment"
+  roles = [
+  aws_iam_role.bastion_iam_role.name]
   policy_arn = data.aws_iam_policy.ec2_full_policy.arn
 }
 
 resource aws_iam_policy_attachment "iam_policy_attachment" {
-  name       = aws_iam_role.bastion_iam_role.name
+  name = "iam_policy_attachment"
+  roles = [
+  aws_iam_role.bastion_iam_role.name]
   policy_arn = data.aws_iam_policy.iam_full_policy.arn
 }
 
 resource aws_iam_policy_attachment "eks_cluster_management_policy" {
-  name       = aws_iam_role.bastion_iam_role.name
+  name = "eks_cluster_management_policy"
+  roles = [
+  aws_iam_role.bastion_iam_role.name]
   policy_arn = data.aws_iam_policy.eks_cluster_management_policy.arn
+}
+
+resource aws_s3_bucket_policy "databricks_s3_bucket_policy" {
+  bucket = aws_s3_bucket.databricks_s3_bucket.id
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Grant Databricks Access",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::414351767826:root"
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": [
+        "arn:aws:s3:::databricks-operatorflow-bucket/*",
+        "arn:aws:s3:::databricks-operatorflow-bucket"
+      ]
+    }
+  ]
+}
+POLICY
 }
 
 
