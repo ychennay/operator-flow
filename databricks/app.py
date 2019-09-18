@@ -1,16 +1,15 @@
-from flask_api import FlaskAPI
-from flask import request, url_for, jsonify
-from flask_api import FlaskAPI, status, exceptions
-import requests
-import os
-from typing import Dict
 import json
+import os
 import re
+from typing import Dict
+
+import requests
+from flask import request, jsonify
+from flask_api import FlaskAPI
 
 app = FlaskAPI(__name__)
 
 DATABRICKS_ACCOUNT = os.environ.get("DATABRICKS_ACCOUNT")
-DATABRICKS_ACCOUNT = "dbc-e3636760-d7f1.cloud.databricks.com"
 
 
 def make_url(resource: str, action: str) -> str:
@@ -21,7 +20,7 @@ def make_url(resource: str, action: str) -> str:
 def run_job_now_endpoint():
     if request.method == 'POST':
         pass
-    
+
 
 @app.route("/jobs", methods=['GET', 'POST'])
 def jobs_endpoint():
