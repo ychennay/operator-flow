@@ -12,6 +12,7 @@ It requires several dependencies:
 
 ### Databricks
 
+Databricks requires a special VPC set up for its clusters to run inside. The IAM role 
 
 
 ## Terraform
@@ -38,6 +39,3 @@ OperatorFlow's infrastructure is provisioned via a **bastion host** that is set 
 (virtual private cloud). The files in the `infrastructure` folder provide the Terraform resources necessary for provisioning the
 networking and EC2 instance that the bastion host uses. The bastion host EC2 instance uses a default AWS AMI (machine image) that already
 contains necessary configurations and packages (`awscli`, `boto3`, etc.).
-
-### Databricks
-
