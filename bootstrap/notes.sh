@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+# the following commands were used to quickly spin up and spin down EKS clusters
+
 export NODEGROUP_STACK=eksctl-kubeflow-aws-nodegroup-cpu-nodegroup
 export EKS_CLUSTER_STACK=eksctl-kubeflow-aws-cluster
 
