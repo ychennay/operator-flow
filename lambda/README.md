@@ -13,3 +13,8 @@ available to call directly from API Gateway.
 There is indeed an actual AWS endpoint, but this requires many custom configurations of the integration response header mappings, since the default
 response is in XML, and the actual frontend client app (written in Javascript) expects JSON. Thus, in order to avoid the client having to do manual conversion
 of XML to JSON, I opted to simply write my own implementation in `boto3`, which is easily mappable to JSON.
+
+## What Each Lambda Function Does
+
+1. `handle-resource-calls.py` performs the main functionality, parsing the method and resource signature of the API call and then mapping them to
+Databricks resoruces, and then 
