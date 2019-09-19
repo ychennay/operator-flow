@@ -1,4 +1,4 @@
-eksctl create cluster --node-type="t2.medium" --region=us-east-1 --zones=us-east-1a,us-east-1b
+eksctl create cluster --node-type="m5.xlarge" --nodes-min=1 --nodes-max=3 --region=us-east-1 --zones=us-east-1a,us-east-1b
 mkdir istio && cd istio
 
 curl -L https://git.io/getLatestIstio | ISTIO_VERSION=1.3.0 sh -

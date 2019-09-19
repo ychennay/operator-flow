@@ -37,7 +37,11 @@ Terraform is used to provision many of the underlying infrastructure, including 
 #### Provisioning AWS EKS Cluster via `eksctl`
 
 1. Make sure that the instance you are running `eksctl` on has been properly configured via `awscli`. If it has not, run `aws configure`.
-2. Run `eksctl create cluster --region=us-east-1 --zones=us-east-1a,us-east-1b` to provision the EKS cluster in the `us-east-1` region. Note that
+2. Run 
+```shell script
+eksctl create cluster --node-type="m5.xlarge" --nodes-min=1 --nodes-max=3 --region=us-east-1 --zones=us-east-1a,us-east-1b
+```
+to provision the EKS cluster in the `us-east-1` region. Note that
 you should make sure to properly define the regions and availability zones, since not all availability zones of each region are capable
 of supporting a large enough instance type as required by KubeFlow and Istio.
 3. Wait a few minutes for the provisioning to finish, and then grab the cluster name.
