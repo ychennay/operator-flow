@@ -51,7 +51,7 @@ During the provisioning process, your terminal output will look like this:
 
 4. Run the following command to save the cluster name as an environment variable:
 ```shell script
-export AWS_CLUSTER_NAME=<AWS_CLUSTER_NAME>
+export AWS_CLUSTER_NAME=$(aws eks list-clusters | jq -r ".clusters[]")
 ```
 5. Find the appropriate node instance role by using
 ```shell script
@@ -107,7 +107,12 @@ cd ${KFAPP}
 kfctl generate all -V
 ```
 This will generate all the Kustomize configuration files that are needed.
-7. You can apply the changes to the Kubernetes controller via
+7. Prior to actually applying all the changes and implementing your service mesh, you need to set up automatic sidecard injection with Istio:
+```shell script
+kubectl label namespace default istio-injection=enabled
+```
+This will allow every new pod that is created to have two containers - the target application image to be run, as well as an Istio Envoy sidecar.
+8. You can apply the changes to the Kubernetes controller via
 ```shell script
 kfctl apply all -V
 ```
