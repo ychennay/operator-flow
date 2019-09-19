@@ -13,6 +13,9 @@ __pycache__/
 # C extensions
 *.so
 
+.idea/
+infrastructure/.terraform*
+infrastructure/terraform.tfvars
 # Distribution / packaging
 .Python
 build/
